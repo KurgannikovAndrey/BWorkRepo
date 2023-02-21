@@ -101,12 +101,17 @@ public class Node {
     }
 
 
-    public Resource getResourceByName(String name) {
-        return resourceTable.get(name);
+    public Resource getResourceByName(String name) { //TODO refactor
+        var toFound = new Resource(name, null);
+        var target = findNodeById(toFound.getId());
+        return Network.getInstance().getNodeByIp(target.resourceIdToSourceIdMap.get(toFound.getId()))
+                .resourceTable.get(name);
     }
     
-    public void publishResource(Resource resource) { //TODO refactor
-        resourceTable.put(resource.getName(), resource);
+    public void publishResource(Resource resource) { //TODO to test
+        var target = findNodeById(resource.getId());
+        Network.getInstance().getNodeByIp(target.resourceIdToSourceIdMap.get(resource.getId()))
+                .resourceTable.put(resource.getName(), resource);
     }
 
     public Set<Resource> getAllResources(){
