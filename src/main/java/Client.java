@@ -67,7 +67,7 @@ public class Client {
         }
 
         public Builder setPremadeNode(int ip) {
-            client.node = new Node(ip);
+            client.node = new Node(ip, true);
             return this;
         }
 

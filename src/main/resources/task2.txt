@@ -5,4 +5,5 @@ create_with_ip C 1088381953 1388381954
 view
 create_with_ip E 1388381954 10
 view
+range_view
 exit

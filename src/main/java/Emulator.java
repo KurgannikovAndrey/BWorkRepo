@@ -81,9 +81,10 @@ public class Emulator {
     }
 
     private static void rangeView(Collection<Client> values) {
-        Set<Client> clients = new HashSet<>(values);
+        Set<Client> clients = new TreeSet<>(Comparator.comparingInt(Client::hashCode));
+        clients.addAll(values);
         for (Client client : clients) {
-            System.out.println("Client : " + Utils.toDegree(client.getId()) + " resources : " + client.getResources());
+            System.out.println("Hash : " + client.hashCode() + " Client : " + Utils.toDegree(client.getId()) + " resources : " + client.getResources());
         }
     }
 }
