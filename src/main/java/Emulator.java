@@ -1,5 +1,3 @@
-import java.io.File;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -25,6 +23,9 @@ public class Emulator {
                     case "run":
                         var path = Paths.get("src\\main\\resources\\" + input.get(1));
                         scanner = new Scanner(path);
+                        break;
+                    case "default_input":
+                        scanner = new Scanner(System.in);
                         break;
                     case "create":
                         String name = input.get(1);
