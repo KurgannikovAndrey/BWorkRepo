@@ -3,25 +3,27 @@ import java.util.stream.Collectors;
 
 public class Node {
     private final int ip;
-    private final int id;
-    private final List<Node> pool;
+    private int id;
+    private final Set<Node> pool;
     private final Map<Integer, Integer> resourceIdToSourceIdMap;
     private final Map<String, Resource> resourceTable;
     private Node next;
     private Node prev;
 
     public Node(){//client node
-        this(Math.abs(new Random().nextInt()));
+        this(Math.abs(new Random().nextInt()), true);
     }
 
-    public Node(int ip){//external node
+    public Node(int ip, boolean register){//external node
         this.ip = ip;
         this.id = Utils.hash(ip);
-        this.pool = new LinkedList<>();
+        this.pool = new TreeSet<>(Comparator.comparingInt(Node::hashCode));
         this.resourceIdToSourceIdMap = new HashMap<>();
         this.resourceTable = new HashMap<>();
 
-        Network.getInstance().register(this);
+        if (register) {
+            Network.getInstance().register(this);
+        }
     }
 
     public Node boot(Node node){
@@ -60,8 +62,15 @@ public class Node {
 //            }
 //            return this.id >= id ? this : next.id >= id ? next : this;
 //        }
+//
         var find = pool.stream().filter(x -> x.id >= id).min(Comparator.comparingInt(x -> x.id));
         var result = find.orElseGet(() -> pool.stream().min(Comparator.comparingInt(x -> x.id)).get());
+
+//        var toFind = new Node(id, false);
+//        var poolTree = ((TreeSet<Node>)pool);
+//        var find = poolTree.contains(toFind) ? poolTree.floor(toFind) : poolTree.higher(toFind);
+//        var result = find != null ? find : poolTree.first();
+
         return result == this ? this : result.findNodeById(id);
     }
 
@@ -71,13 +80,9 @@ public class Node {
         pool.add(prev);
         pool.add(next);
         System.out.println("refill start : " + this.id + " " + Utils.toDegree(this.id));
-        for (int i = 29; i < 32; i++){
+        for (int i = 0; i < 32; i++){
             int targetId = Utils.sumWithOutOverflow(this.id, (int) Math.pow(2, i));
-//            System.out.println("this id : " + this.id + " " + Utils.toDegree(this.id)) ;
-//            System.out.println("inc : " + i + " " + (int) Math.pow(2, i) + " " + Utils.toDegree((int) Math.pow(2, i)));
-//            System.out.println("to found : " + targetId + " " + Utils.toDegree(targetId));
             var target = findNodeById(targetId);
-//            System.out.println("found : " + target.id + " " + Utils.toDegree(target.id));
             pool.add(target);
         }
         return this;
@@ -91,29 +96,26 @@ public class Node {
         return id;
     }
 
-    public Node getNext() {
-        return next;
-    }
-
-    public Node getPrev() {
-        return prev;
-    }
-
-    public Map<Integer, Integer> getResourceIdToSourceIdMap() {
-        return resourceIdToSourceIdMap;
-    }
 
     public Resource getResourceByName(String name) {
-        return resourceTable.get(name);
+        var toFound = new Resource(name, null);
+        var target = findNodeById(toFound.getId());
+        return Network.getInstance().getNodeByIp(target.resourceIdToSourceIdMap.get(toFound.getId()))
+                .resourceTable.get(name);
     }
     
-    public Node publishResource(Resource resource) {
-        resourceTable.put(resource.getName(), resource);
-        return this;
+    public void publishResource(Resource resource) {
+        var target = findNodeById(resource.getId());
+        target.resourceIdToSourceIdMap.put(resource.getId(), this.id);//put
+        resourceTable.put(resource.getName(), resource);//this
     }
 
     public Set<Resource> getAllResources(){
         return new HashSet<>(resourceTable.values());
+    }
+
+    public Map<Integer, Integer> getResourceIdToSourceIdMap() {
+        return resourceIdToSourceIdMap;
     }
 
     @Override

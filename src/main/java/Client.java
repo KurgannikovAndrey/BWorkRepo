@@ -1,3 +1,4 @@
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -6,13 +7,13 @@ public class Client {
     private Node node;
 
     public Resource getResource(String name) {
-        Node targetNode = node.findNodeById(name.hashCode());
-        return targetNode.getResourceByName(name);
+//        Node targetNode = node.findNodeById(name.hashCode());
+        return node.getResourceByName(name);
     }
 
     public Resource publishResource(Resource resource) {
-        Node targetNode = node.findNodeById(resource.getName().hashCode());
-        targetNode.publishResource(resource);
+//        Node targetNode = node.findNodeById(resource.getName().hashCode());
+        node.publishResource(resource);
         return resource;
     }
 
@@ -22,6 +23,10 @@ public class Client {
 
     public Set<Resource> getResources() {
         return node.getAllResources();
+    }
+
+    public Map<Integer, Integer> getResourcesMap() {
+        return node.getResourceIdToSourceIdMap();
     }
 
     @Override
@@ -67,7 +72,7 @@ public class Client {
         }
 
         public Builder setPremadeNode(int ip) {
-            client.node = new Node(ip);
+            client.node = new Node(ip, true);
             return this;
         }
 
