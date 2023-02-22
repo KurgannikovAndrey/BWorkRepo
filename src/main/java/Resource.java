@@ -6,7 +6,7 @@ public class Resource {
     public Resource(String name, String value) {
         this.name = name;
         this.value = value;
-        this.id = name.hashCode();
+        this.id = Math.abs(name.hashCode());
     }
 
     public int getId() {

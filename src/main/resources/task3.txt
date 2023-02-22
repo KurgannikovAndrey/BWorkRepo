@@ -1,9 +1,9 @@
 root_with_ip A 1888381953
 create_with_ip B 1888381953 1088381953
-view
 create_with_ip C 1088381953 1388381954
-view
 create_with_ip E 1388381954 100
-view
+client E
+publish name_A value_A
+publish b value_D
 range_view
 exit

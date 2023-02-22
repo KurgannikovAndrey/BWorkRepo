@@ -58,7 +58,9 @@ public class Emulator {
                         System.out.println(currentClient.getResource(input.get(1)));
                         break;
                     case "publish":
-                        currentClient.publishResource(new Resource(input.get(1), input.get(2)));
+                        var resource = new Resource(input.get(1), input.get(2));
+                        System.out.println("resource " + resource.getName() + " : " + resource.getId());
+                        currentClient.publishResource(resource);
                         break;
                     case "view":
                         System.out.println(Network.getInstance());
@@ -84,7 +86,7 @@ public class Emulator {
         Set<Client> clients = new TreeSet<>(Comparator.comparingInt(Client::hashCode));
         clients.addAll(values);
         for (Client client : clients) {
-            System.out.println("Hash : " + client.hashCode() + " Client : " + Utils.toDegree(client.getId()) + " resources : " + client.getResources());
+            System.out.println("Hash : " + client.hashCode() + " Client : " + Utils.toDegree(client.getId()) + " resources : " + client.getResourcesMap());
         }
     }
 }

@@ -63,13 +63,13 @@ public class Node {
 //            return this.id >= id ? this : next.id >= id ? next : this;
 //        }
 //
-//        var find = pool.stream().filter(x -> x.id >= id).min(Comparator.comparingInt(x -> x.id));
-//        var result = find.orElseGet(() -> pool.stream().min(Comparator.comparingInt(x -> x.id)).get());
+        var find = pool.stream().filter(x -> x.id >= id).min(Comparator.comparingInt(x -> x.id));
+        var result = find.orElseGet(() -> pool.stream().min(Comparator.comparingInt(x -> x.id)).get());
 
-        var toFind = new Node(id, false);
-        var poolTree = ((TreeSet<Node>)pool);
-        var find = poolTree.contains(toFind) ? poolTree.floor(toFind) : poolTree.higher(toFind);
-        var result = find != null ? find : poolTree.first();
+//        var toFind = new Node(id, false);
+//        var poolTree = ((TreeSet<Node>)pool);
+//        var find = poolTree.contains(toFind) ? poolTree.floor(toFind) : poolTree.higher(toFind);
+//        var result = find != null ? find : poolTree.first();
 
         return result == this ? this : result.findNodeById(id);
     }
@@ -82,11 +82,7 @@ public class Node {
         System.out.println("refill start : " + this.id + " " + Utils.toDegree(this.id));
         for (int i = 0; i < 32; i++){
             int targetId = Utils.sumWithOutOverflow(this.id, (int) Math.pow(2, i));
-//            System.out.println("this id : " + this.id + " " + Utils.toDegree(this.id)) ;
-//            System.out.println("inc : " + i + " " + (int) Math.pow(2, i) + " " + Utils.toDegree((int) Math.pow(2, i)));
-//            System.out.println("to found : " + targetId + " " + Utils.toDegree(targetId));
             var target = findNodeById(targetId);
-//            System.out.println("found : " + target.id + " " + Utils.toDegree(target.id));
             pool.add(target);
         }
         return this;
@@ -101,21 +97,25 @@ public class Node {
     }
 
 
-    public Resource getResourceByName(String name) { //TODO refactor
+    public Resource getResourceByName(String name) {
         var toFound = new Resource(name, null);
         var target = findNodeById(toFound.getId());
         return Network.getInstance().getNodeByIp(target.resourceIdToSourceIdMap.get(toFound.getId()))
                 .resourceTable.get(name);
     }
     
-    public void publishResource(Resource resource) { //TODO to test
+    public void publishResource(Resource resource) {
         var target = findNodeById(resource.getId());
-        Network.getInstance().getNodeByIp(target.resourceIdToSourceIdMap.get(resource.getId()))
-                .resourceTable.put(resource.getName(), resource);
+        target.resourceIdToSourceIdMap.put(resource.getId(), this.id);//put
+        resourceTable.put(resource.getName(), resource);//this
     }
 
     public Set<Resource> getAllResources(){
         return new HashSet<>(resourceTable.values());
+    }
+
+    public Map<Integer, Integer> getResourceIdToSourceIdMap() {
+        return resourceIdToSourceIdMap;
     }
 
     @Override
